@@ -188,6 +188,11 @@ class CircularChecker:
 
     # Method to retrieve cache from the database
     def get_cache(self) -> list[list] | list:
+        self._con = mysql.connector.connect(
+            host=self.db_host, port=self.db_port, password=self.db_password,
+            user=self.db_user, database=self.db_name,
+        )
+        self._cur = self._con.cursor(prepared=True)
         self._cur.execute(f"SELECT id, title, link FROM {self.db_table} WHERE category = ?", (self.category,))
         res = self._cur.fetchall()
 
@@ -195,6 +200,12 @@ class CircularChecker:
 
     # Method to add multiple items to cache
     def _set_cache(self, data):
+        self._con = mysql.connector.connect(
+            host=self.db_host, port=self.db_port, password=self.db_password,
+            user=self.db_user, database=self.db_name,
+        )
+        self._cur = self._con.cursor(prepared=True)
+
         # data [ (id, title, link) ]
         query = f"INSERT OR IGNORE INTO {self.db_table} (category, id, title, link) VALUES (?, ?, ?, ?)"
 
@@ -206,6 +217,11 @@ class CircularChecker:
 
     # Method to add a single item to cache
     def _add_to_cache(self, id_: int, title: str, link: str):
+        self._con = mysql.connector.connect(
+            host=self.db_host, port=self.db_port, password=self.db_password,
+            user=self.db_user, database=self.db_name,
+        )
+        self._cur = self._con.cursor(prepared=True)
         query = f"INSERT OR IGNORE INTO {self.db_table} (id, title, link) VALUES (?, ?, ?, ?)"
 
         if self.cache_method == 'mysql':
@@ -215,6 +231,12 @@ class CircularChecker:
 
     # Method to retrieve circulars from the API and insert into cache
     def _refresh_cache(self):
+        self._con = mysql.connector.connect(
+            host=self.db_host, port=self.db_port, password=self.db_password,
+            user=self.db_user, database=self.db_name,
+        )
+        self._cur = self._con.cursor(prepared=True)
+
         request = requests.get(f"{self.url}list/{self.category}")
         json: dict = request.json()
 
@@ -238,6 +260,11 @@ class CircularChecker:
 
     # Method to check for new circular(s)
     def check(self) -> list[dict] | list:
+        self._con = mysql.connector.connect(
+            host=self.db_host, port=self.db_port, password=self.db_password,
+            user=self.db_user, database=self.db_name,
+        )
+        self._cur = self._con.cursor(prepared=True)
         # First get cached circulars and store them in a variable 'cached_circular_ids'
         # Then refresh cache and get the new list of circulars, and then compare and find new ones.
         self._cur.execute(f"SELECT id FROM {self.db_table} WHERE category = ?", (self.category,))
